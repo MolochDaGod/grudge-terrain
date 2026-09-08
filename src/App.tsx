@@ -3,8 +3,8 @@ import { PlayWorld, type PlayTool } from "./play/PlayWorld";
 import { Hud } from "./ui/Hud";
 import { buildIsland, type IslandWorld } from "./lib/world";
 import { sculpt, sampleHeight } from "./lib/heightmap";
-import { strikeNode, harvestTick, type HarvestNode, type NodeKind } from "./lib/nodes";
-import type { BiomeId } from "./lib/biomes";
+import { strikeNode, harvestTick, type HarvestNode } from "./lib/nodes";
+import type { BiomeId, NodeKind } from "./lib/biomes";
 import { SECTOR_BY_ID } from "./lib/sectors";
 import { BUILD_CATALOG, type BuildKind, type PlacedBuild } from "./play/RtsGhost";
 import { assertLegalFoliagePath } from "./lib/foliage";
@@ -32,11 +32,7 @@ export default function App() {
   const input = useRef({ ...input0 });
 
   const rebuild = useCallback((next?: { seedKey?: string; biome?: BiomeId; sectorId?: string | null }) => {
-    const w = buildIsland({
-      seedKey: next?.seedKey ?? seedKey,
-      biome: next?.biome ?? biome,
-      sectorId: next?.sectorId ?? sectorId,
-    });
+    const w = buildIsland({ seedKey: next?.seedKey ?? seedKey, biome: next?.biome ?? biome, sectorId: next?.sectorId ?? sectorId });
     setWorld(w); setNodes(w.nodes); setBuilds([]); setFieldVersion((v) => v + 1);
     setLog(`Seed ${w.spec.seedKey} · ${w.spec.biome} · ${w.spec.foundation}`);
     const q = new URLSearchParams({ seed: w.spec.seedKey, biome: w.spec.biome, ...(w.spec.sectorId ? { sector: w.spec.sectorId } : {}) });
@@ -109,7 +105,7 @@ export default function App() {
     setUploads((u) => [...u, { name: file.name, url, ok }]);
     try {
       await fetch("/api/assets", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: file.name, size: file.size, type: file.type, banned: !ok }) });
-    } catch { /* catalog still records locally */ }
+    } catch { /* local catalog */ }
     setLog(ok ? `Queued ${file.name} for R2 / assets.grudge-studio.com` : `Rejected banned nature path ${file.name}`);
   };
 
