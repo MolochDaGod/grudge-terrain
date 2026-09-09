@@ -1,83 +1,63 @@
 import { FLEET } from "../lib/canon";
 
 /**
- * Account Warlord kits.
- * Preferred mesh: grudge6 one-kit + child visibility (Bip001, 2.0 m fleet).
- * Fallback: Mixamo characters/*.glb which are still live on R2.
+ * Account Warlord kits from Character Studio bake.
+ * Golden: Toon RTS GLB ★ used by https://character.grudge-studio.com/viewer
+ * Compare: models/grudge6/{race}.glb
+ * Mixamo fallback: models/characters/{kit}.glb
+ *
+ * Controller contract (grudge-studio-animation skill):
+ * one mixer, in-place clips, Rapier CCT owns translation, fleet scale 2.0 m.
  */
 const A = FLEET.assets;
+const TOON = `${A}/asset-packs/toon-rts-characters/glb/characters`;
+const VIEWER = "https://character.grudge-studio.com/viewer";
+
+function kit(
+  id: string,
+  label: string,
+  race: string,
+  role: string,
+  scale: number,
+  extra?: { mixamo?: string },
+) {
+  return {
+    id,
+    label,
+    race,
+    role,
+    model: `${TOON}/${race}.glb`,
+    fallback: `${A}/models/grudge6/${race}.glb`,
+    mixamo: extra?.mixamo ?? `${A}/models/characters/${id === "berserker" ? "berserker" : race}.glb`,
+    viewer: `${VIEWER}?race=${race}`,
+    scale,
+    bones: "bip001" as const,
+    bake: "toon-rts" as const,
+  };
+}
 
 export const WARLORD_KITS = {
-  human: {
-    id: "human",
-    label: "Warlord",
-    race: "human",
-    role: "warrior",
-    model: `${A}/models/grudge6/human.glb`,
-    fallback: `${A}/models/characters/human.glb`,
-    scale: 1,
-    bones: "bip001",
-  },
-  berserker: {
-    id: "berserker",
-    label: "Berserker",
-    race: "barbarian",
-    role: "warrior",
-    model: `${A}/models/grudge6/barbarian.glb`,
-    fallback: `${A}/models/characters/berserker.glb`,
-    scale: 1.05,
-    bones: "bip001",
-  },
+  human: kit("human", "Warlord", "human", "warrior", 1),
+  berserker: kit("berserker", "Berserker", "barbarian", "warrior", 1.05, {
+    mixamo: `${A}/models/characters/berserker.glb`,
+  }),
   knight: {
     id: "knight",
     label: "Knight",
     race: "human",
     role: "warrior",
-    model: `${A}/models/characters/knight.glb`,
-    fallback: `${A}/models/grudge6/human.glb`,
+    model: `${TOON}/human.glb`,
+    fallback: `${A}/models/characters/knight.glb`,
+    mixamo: `${A}/models/characters/knight.glb`,
+    viewer: `${VIEWER}?race=human&kit=knight`,
     scale: 1,
-    bones: "mixamo",
+    bones: "bip001" as const,
+    bake: "toon-rts" as const,
   },
-  elf: {
-    id: "elf",
-    label: "Elf",
-    race: "elf",
-    role: "ranger",
-    model: `${A}/models/grudge6/elf.glb`,
-    fallback: `${A}/models/races/elf.glb`,
-    scale: 0.98,
-    bones: "bip001",
-  },
-  dwarf: {
-    id: "dwarf",
-    label: "Dwarf",
-    race: "dwarf",
-    role: "warrior",
-    model: `${A}/models/grudge6/dwarf.glb`,
-    fallback: `${A}/models/races/dwarf.glb`,
-    scale: 0.88,
-    bones: "bip001",
-  },
-  orc: {
-    id: "orc",
-    label: "Orc",
-    race: "orc",
-    role: "warrior",
-    model: `${A}/models/grudge6/orc.glb`,
-    fallback: `${A}/models/races/orc.glb`,
-    scale: 1.08,
-    bones: "bip001",
-  },
-  undead: {
-    id: "undead",
-    label: "Undead",
-    race: "undead",
-    role: "mage",
-    model: `${A}/models/grudge6/undead.glb`,
-    fallback: `${A}/models/races/undead.glb`,
-    scale: 1,
-    bones: "bip001",
-  },
+  elf: kit("elf", "Elf", "elf", "ranger", 0.98),
+  dwarf: kit("dwarf", "Dwarf", "dwarf", "warrior", 0.88),
+  orc: kit("orc", "Orc", "orc", "warrior", 1.08),
+  undead: kit("undead", "Undead", "undead", "mage", 1),
 } as const;
 
 export type WarlordKitId = keyof typeof WARLORD_KITS;
@@ -88,4 +68,9 @@ export function resolveWarlordKit(search = window.location.search): WarlordKitId
   if (raw === "barbarian") return "berserker";
   if (raw in WARLORD_KITS) return raw as WarlordKitId;
   return "human";
+}
+
+export function kitPreloadUrls(id: WarlordKitId): string[] {
+  const k = WARLORD_KITS[id];
+  return [k.model, k.fallback];
 }
