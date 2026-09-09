@@ -12,12 +12,14 @@ export const FLEET = {
   open: "https://open.grudge-studio.com",
 } as const;
 
+/** Live play scale — home island contract */
 export const WORLD = {
   family: "home-island" as const,
   diameterM: 1024,
+  /** Browser play slice — same ratios, smaller mesh for AAA tick */
   playDiameterM: 256,
   characterM: 2.0,
-  mountainPeakM: 20,
+  mountainPeakM: 30,
   rtsCoreM: 200,
   harvestRegenHours: 4,
   waterY: -0.4,
@@ -28,26 +30,35 @@ export const FOUNDATIONS = {
     id: "driftwood_bay",
     label: "Driftwood Bay",
     tone: "coastal",
-    maxElevationM: 48,
+    maxElevationM: 56,
     beachBandM: 28,
-    playPeakM: 14,
+    playPeakM: 18,
   },
   ironfang_spire: {
     id: "ironfang_spire",
     label: "Ironfang Spire",
     tone: "highland",
-    maxElevationM: 80,
+    maxElevationM: 96,
     beachBandM: 14,
-    playPeakM: 20,
+    playPeakM: 30,
   },
 } as const;
 
 export type FoundationId = keyof typeof FOUNDATIONS;
 
 export const BANNED_NATURE = [
-  "CommonTree", "TwistedTree", "DeadTree", "Rock_Medium",
-  "Pine_1", "Pine_2", "Pine_3", "Pine_4", "Pine_5",
-  "Bush_Common", "nature-megakit", "/models/lowpoly/",
+  "CommonTree",
+  "TwistedTree",
+  "DeadTree",
+  "Rock_Medium",
+  "Pine_1",
+  "Pine_2",
+  "Pine_3",
+  "Pine_4",
+  "Pine_5",
+  "Bush_Common",
+  "nature-megakit",
+  "/models/lowpoly/",
 ] as const;
 
 export function cdn(path: string): string {
